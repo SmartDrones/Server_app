@@ -1,0 +1,150 @@
+<html>
+<head>
+  <link rel="stylesheet" href="css/foundation.css">
+</head>
+<body>
+	<header>
+		<h1>My super App for piloting M*therfucker's Drones</h1>
+	</header>
+	<div class="my_drones">
+		<div class="row drone_row" id="1">
+			<div><h2>my super drone <span class="drone_id">1</span></h2></div>
+			<div class="takeoff_container"><button class="columns small-3 button takeoff">takeoff</button></div>
+			<div class="hide landing_container"><button class="columns small-3 button landing">landing</button></div>
+			<div class="scene_container"><button class="columns small-3 button scene scene1 disabled">scene 1</button></div>
+			<div class="scene_container"><button class="columns small-3 button scene scene2 disabled">scene 2</button></div>
+			<div class="scene_container"><button class="columns small-3 button scene scene3 disabled">scene 3</button></div>
+		</div>
+
+		<div class="row drone_row" id="2">
+			<div><h2>my super drone <span class="drone_id">2</span></h2></div>
+			<div class="takeoff_container"><button class="columns small-3 button takeoff">takeoff</button></div>
+			<div class="hide landing_container"><button class="columns small-3 button landing">landing</button></div>
+			<div class="scene_container"><button class="columns small-3 button scene scene1 disabled">scene 1</button></div>
+			<div class="scene_container"><button class="columns small-3 button scene scene2 disabled">scene 2</button></div>
+			<div class="scene_container"><button class="columns small-3 button scene scene3 disabled">scene 3</button></div>
+		</div>
+	</div>
+	<div class="row drone_row" id="all">
+		<div><h2>Fuck them all !</div>
+		<div class="takeoff_container"><button class="columns small-3 button takeoff">takeoff</button></div>
+		<div class="hide landing_container"><button class="columns small-3 button landing">landing</button></div>
+			<div class="scene_container"><button class="columns small-3 button scene scene1 disabled">scene 1</button></div>
+			<div class="scene_container"><button class="columns small-3 button scene scene2 disabled">scene 2</button></div>
+			<div class="scene_container"><button class="columns small-3 button scene scene3 disabled">scene 3</button></div>
+	</div>
+	
+	
+</body>
+
+<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="./js/foundation.min.js"></script>
+<script>
+	var drones_id=[1,2,3];
+	refresh_buttons(drones_id);
+	$(document).foundation();
+	var socket = io();
+
+	$('#all .takeoff').click(function(){
+		socket.emit('client_order',{id_drone:drones_id,cmd:"takeoff"});
+		console.log("takeoff asked for all");
+		$('#all .takeoff_container').addClass('hide');
+		$('#all .landing_container').removeClass('hide');
+		$('#all .scene').removeClass('disabled');
+		
+	});
+	
+	$('#all .landing').click(function(){
+		socket.emit('client_order',{id_drone:drones_id,cmd:"landing"});
+		console.log("landing asked for all");
+		$('#all .landing_container').addClass('hide');
+		$('#all .takeoff_container').removeClass('hide');
+		$('#all .scene').addClass('disabled');
+	});
+		
+	$('#all .scene1').click(function(){
+		console.log("scene1 asked for all");
+		socket.emit('client_order',{id_drone:drones_id,cmd:"scene",arg:{nb:1}});
+	});
+	$('#all .scene2').click(function(){	
+		console.log("scene2 asked for all");
+		socket.emit('client_order',{id_drone:drones_id,cmd:"scene",arg:{nb:2}});
+	});
+	$('#all .scene3').click(function(){
+		console.log("scene3 asked for all");
+		socket.emit('client_order',{id_drone:drones_id,cmd:"scene",arg:{nb:3}});
+	});
+	
+	
+	
+	socket.on('drone_ids',function(data){
+		drones_id=data;
+		//drones_id=data;
+		refresh_buttons(data);
+	});
+	
+	function refresh_buttons(data){
+		$(".my_drones").empty();
+		for(var i in data){
+			$(".my_drones").append(
+			"<div class='row drone_row' id='"+data[i]+"'>"+
+				"<div><h2>my super drone <span class='drone_id'>"+data[i]+"</span></h2></div>"+
+				"<div class='takeoff_container'><button class='columns small-3 button takeoff'>takeoff</button></div>"+
+				"<div class='hide landing_container'><button class='columns small-3 button landing'>landing</button></div>"+
+			"<div class='scene_container'><button class='columns small-3 button scene scene1 disabled'>scene 1</button></div>"+
+			"<div class='scene_container'><button class='columns small-3 button scene scene2 disabled'>scene 2</button></div>"+
+			"<div class='scene_container'><button class='columns small-3 button scene scene3 disabled'>scene 3</button></div>"+
+			"</div>"
+			);
+			
+			$('body').on('click','#'+data[i]+' .takeoff',takeoff_handler);
+			$('body').on('click','#'+data[i]+' .landing',landing_handler);
+			$('body').on('click','#'+data[i]+' .scene1',scene1_handler);
+			$('body').on('click','#'+data[i]+' .scene2',scene2_handler);
+			$('body').on('click','#'+data[i]+' .scene3',scene3_handler);
+		}
+	}	
+	
+	
+	function takeoff_handler(e){
+		var id = $(this).parent().parent().attr('id');
+		socket.emit('client_order',{id_drone:[id],cmd:"takeoff"});
+		console.log("takeoff asked for "+id);
+		$('#'+id+' .takeoff_container').addClass('hide');
+		$('#'+id+' .landing_container').removeClass('hide');
+		$('#'+id+' .scene').removeClass('disabled');		
+	}
+	
+	function landing_handler(e){
+		var id = $(this).parent().parent().attr('id');
+		socket.emit('client_order',{id_drone:[id],cmd:"landing"});
+		console.log("landing asked for "+id);
+		$('#'+id+' .landing_container').addClass('hide');
+		$('#'+id+' .takeoff_container').removeClass('hide');
+		$('#'+id+' .scene').addClass('disabled');
+	}
+
+	function scene1_handler(e){
+		var id = $(this).parent().parent().attr('id');
+		console.log("scene1 asked for "+id);
+		socket.emit('client_order',{id_drone:[id],cmd:"scene",arg:{nb:1}});
+	}
+			
+	function scene2_handler(e){
+		var id = $(this).parent().parent().attr('id');
+		console.log("scene2 asked for "+id);
+		socket.emit('client_order',{id_drone:[id],cmd:"scene",arg:{nb:2}});
+	}
+	
+	function scene3_handler(e){
+		var id = $(this).parent().parent().attr('id');
+		console.log("scene3 asked for "+id);
+		socket.emit('client_order',{id_drone:[data[i]],cmd:"scene",arg:{nb:2}});
+	}
+			
+	
+	
+	
+</script>
+</html>
