@@ -37,8 +37,8 @@
 	
 </body>
 
-<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="./js/socket.io-1.2.0.js"></script>
+<script src="./js/jquery-1.11.1.js"></script>
 <script src="./js/foundation.min.js"></script>
 <script>
 	var drones_id=[];
@@ -48,7 +48,7 @@
 	var socket = io();
 
 	$('#all .takeoff').click(function(){
-		socket.emit('client_order',{id_drone:drones_id,cmd:"takeoff"});
+		socket.emit('client_order',{id_drones:drones_id,cmd:"takeoff"});
 		console.log("takeoff asked for all");
 		$('#all .takeoff_container').addClass('hide');
 		$('#all .landing_container').removeClass('hide');
@@ -57,7 +57,7 @@
 	});
 	
 	$('#all .landing').click(function(){
-		socket.emit('client_order',{id_drone:drones_id,cmd:"landing"});
+		socket.emit('client_order',{id_drones:drones_id,cmd:"landing"});
 		console.log("landing asked for all");
 		$('#all .landing_container').addClass('hide');
 		$('#all .takeoff_container').removeClass('hide');
@@ -66,22 +66,23 @@
 		
 	$('#all .scene1').click(function(){
 		console.log("scene1 asked for all");
-		socket.emit('client_order',{id_drone:drones_id,cmd:"scene",arg:{nb:1}});
+		socket.emit('client_order',{id_drones:drones_id,cmd:"scene",arg:{nb:1}});
 	});
 	$('#all .scene2').click(function(){	
 		console.log("scene2 asked for all");
-		socket.emit('client_order',{id_drone:drones_id,cmd:"scene",arg:{nb:2}});
+		socket.emit('client_order',{id_drones:drones_id,cmd:"scene",arg:{nb:2}});
 	});
 	$('#all .scene3').click(function(){
 		console.log("scene3 asked for all");
-		socket.emit('client_order',{id_drone:drones_id,cmd:"scene",arg:{nb:3}});
+		socket.emit('client_order',{id_drones:drones_id,cmd:"scene",arg:{nb:3}});
 	});
 	
 	socket.on('id',function(data){
 		my_id=data;
 	});
 	
-	socket.on('drone_ids',function(data){
+	socket.on('drones_ids',function(data){
+		console.log('drone_ids :'+data);
 		drones_id=[];
 		for( var i in data){
 			if(data[i] != my_id)
@@ -91,6 +92,7 @@
 	});
 	
 	function refresh_buttons(data){
+		console.log('refreshing');
 		$(".my_drones").empty();
 		if(drones_id.length==0){
 			$('#all').addClass('hide');
@@ -122,7 +124,7 @@
 	
 	function takeoff_handler(e){
 		var id = $(this).parent().parent().attr('id');
-		socket.emit('client_order',{id_drone:[id],cmd:"takeoff"});
+		socket.emit('client_order',{id_drones:[id],cmd:"takeoff"});
 		console.log("takeoff asked for "+id);
 		$('#'+id+' .takeoff_container').addClass('hide');
 		$('#'+id+' .landing_container').removeClass('hide');
@@ -131,7 +133,7 @@
 	
 	function landing_handler(e){
 		var id = $(this).parent().parent().attr('id');
-		socket.emit('client_order',{id_drone:[id],cmd:"landing"});
+		socket.emit('client_order',{id_drones:[id],cmd:"landing"});
 		console.log("landing asked for "+id);
 		$('#'+id+' .landing_container').addClass('hide');
 		$('#'+id+' .takeoff_container').removeClass('hide');
@@ -142,7 +144,7 @@
 		if(!this.hasClass("disabled")){
 			var id = $(this).parent().parent().attr('id');
 			console.log("scene1 asked for "+id);
-			socket.emit('client_order',{id_drone:[id],cmd:"scene",arg:{nb:1}});
+			socket.emit('client_order',{id_drones:[id],cmd:"scene",arg:{nb:1}});
 		}
 	}
 			
@@ -150,7 +152,7 @@
 		if(!this.hasClass("disabled")){
 			var id = $(this).parent().parent().attr('id');
 			console.log("scene2 asked for "+id);
-			socket.emit('client_order',{id_drone:[id],cmd:"scene",arg:{nb:2}});
+			socket.emit('client_order',{id_drones:[id],cmd:"scene",arg:{nb:2}});
 		}
 	}
 	
@@ -158,7 +160,7 @@
 		if(!this.hasClass("disabled")){
 			var id = $(this).parent().parent().attr('id');
 			console.log("scene3 asked for "+id);
-			socket.emit('client_order',{id_drone:[data[i]],cmd:"scene",arg:{nb:2}});
+			socket.emit('client_order',{id_drones:[data[i]],cmd:"scene",arg:{nb:2}});
 		}
 	}
 			

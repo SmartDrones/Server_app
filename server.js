@@ -29,10 +29,12 @@ function connect(socket) {
 	nb_clients++;
 	if (nb_clients<=clients_limit){ // avoid too many connection on the server.
 		socket.emit("id",(socket.id));
+		console.log('client id : '+socket.id);
 		tab_clients.push(socket.id);
+		//socket.emit('command',{id_drones:[],cmd:"takeoff"});
 		socket.emit("drones_ids",tab_clients);
 		socket.on('client_order',function(data){
-				socket.emit("command",data);
+				socket.emit('command',{id_drones:[],cmd:"takeoff"});
 				console.log(data);
 //				for(var i in data.drone)
 //				{
