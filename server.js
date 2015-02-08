@@ -29,19 +29,22 @@ function connect(socket) {
 	nb_clients++;
 	if (nb_clients<=clients_limit){ // avoid too many connection on the server.
 		socket.emit("id",(socket.id));
+		//socket.emit('command',{"id_drones":[0,1,2],cmd:"takeoff"});
 		console.log('client id : '+socket.id);
 		tab_clients.push(socket.id);
 		//socket.emit('command',{id_drones:[],cmd:"takeoff"});
 		socket.emit("drones_ids",tab_clients);
 		socket.on('client_order',function(data){
-				socket.emit('command',{id_drones:[],cmd:"takeoff"});
+				socket.emit('event',data);
 				console.log(data);
 //				for(var i in data.drone)
 //				{
 //					send_command(data.cmd,data.drone[i]);
 //				}
 			});
-
+		socket.on('message',function(data){
+			socket.emit("event",{"cmd":"coucou"});
+		});
 	}
 	socket.on('disconnect', function() {
 		tab_clients.pop(socket.id);
