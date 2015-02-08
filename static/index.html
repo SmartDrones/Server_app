@@ -33,7 +33,7 @@
 			<div class="scene_container"><button class="columns small-3 button scene scene2 disabled">scene 2</button></div>
 			<div class="scene_container"><button class="columns small-3 button scene scene3 disabled">scene 3</button></div>
 	</div>
-	
+	<div id="no_drones"><h2>No drones there ...</h2></div>
 	
 </body>
 
@@ -41,7 +41,8 @@
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 <script src="./js/foundation.min.js"></script>
 <script>
-	var drones_id=[1,2,3];
+	var drones_id=[];
+	var my_id = 0;
 	refresh_buttons(drones_id);
 	$(document).foundation();
 	var socket = io();
@@ -76,16 +77,28 @@
 		socket.emit('client_order',{id_drone:drones_id,cmd:"scene",arg:{nb:3}});
 	});
 	
-	
+	socket.on('id',function(data){
+		my_id=data;
+	});
 	
 	socket.on('drone_ids',function(data){
-		drones_id=data;
-		//drones_id=data;
-		refresh_buttons(data);
+		drones_id=[];
+		for( var i in data){
+			if(data[i] != my_id)
+				drones_id.push(data[i]);
+		}
+		refresh_buttons(drones_id);
 	});
 	
 	function refresh_buttons(data){
 		$(".my_drones").empty();
+		if(drones_id.length==0){
+			$('#all').addClass('hide');
+			$('#no_drones').removeClass('hide');
+		}else{
+			$('#all').removeClass('hide');
+			$('#no_drones').addClass('hide');
+		}
 		for(var i in data){
 			$(".my_drones").append(
 			"<div class='row drone_row' id='"+data[i]+"'>"+
@@ -126,21 +139,27 @@
 	}
 
 	function scene1_handler(e){
-		var id = $(this).parent().parent().attr('id');
-		console.log("scene1 asked for "+id);
-		socket.emit('client_order',{id_drone:[id],cmd:"scene",arg:{nb:1}});
+		if(!this.hasClass("disabled")){
+			var id = $(this).parent().parent().attr('id');
+			console.log("scene1 asked for "+id);
+			socket.emit('client_order',{id_drone:[id],cmd:"scene",arg:{nb:1}});
+		}
 	}
 			
 	function scene2_handler(e){
-		var id = $(this).parent().parent().attr('id');
-		console.log("scene2 asked for "+id);
-		socket.emit('client_order',{id_drone:[id],cmd:"scene",arg:{nb:2}});
+		if(!this.hasClass("disabled")){
+			var id = $(this).parent().parent().attr('id');
+			console.log("scene2 asked for "+id);
+			socket.emit('client_order',{id_drone:[id],cmd:"scene",arg:{nb:2}});
+		}
 	}
 	
 	function scene3_handler(e){
-		var id = $(this).parent().parent().attr('id');
-		console.log("scene3 asked for "+id);
-		socket.emit('client_order',{id_drone:[data[i]],cmd:"scene",arg:{nb:2}});
+		if(!this.hasClass("disabled")){
+			var id = $(this).parent().parent().attr('id');
+			console.log("scene3 asked for "+id);
+			socket.emit('client_order',{id_drone:[data[i]],cmd:"scene",arg:{nb:2}});
+		}
 	}
 			
 	
