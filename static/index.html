@@ -7,7 +7,7 @@
 		<h1>My super App for piloting M*therfucker's Drones</h1>
 	</header>
 	<div class="my_drones">
-		<div class="row drone_row" id="1">
+		<div class="row drone_row gen_row" id="1">
 			<div><h2>my super drone <span class="drone_id">1</span></h2></div>
 			<div class="takeoff_container"><button class="columns small-3 button takeoff">takeoff</button></div>
 			<div class="hide landing_container"><button class="columns small-3 button landing">landing</button></div>
@@ -16,7 +16,7 @@
 			<div class="scene_container"><button class="columns small-3 button scene scene3 disabled">scene 3</button></div>
 		</div>
 
-		<div class="row drone_row" id="2">
+		<div class="row drone_row gen_row" id="2">
 			<div><h2>my super drone <span class="drone_id">2</span></h2></div>
 			<div class="takeoff_container"><button class="columns small-3 button takeoff">takeoff</button></div>
 			<div class="hide landing_container"><button class="columns small-3 button landing">landing</button></div>
@@ -83,10 +83,13 @@
 	
 	socket.on('drones_ids',function(data){
 		console.log('drone_ids :'+data);
+		console.log('my_id : '+my_id);
 		drones_id=[];
 		for( var i in data){
-			if(data[i] != my_id)
+			if(data[i] !== my_id){
+				console.log("new drone : "+ data[i]);
 				drones_id.push(data[i]);
+			}
 		}
 		refresh_buttons(drones_id);
 	});
@@ -94,16 +97,22 @@
 	function refresh_buttons(data){
 		console.log('refreshing');
 		$(".my_drones").empty();
-		if(drones_id.length==0){
+		if(drones_id.length===0){
 			$('#all').addClass('hide');
 			$('#no_drones').removeClass('hide');
 		}else{
 			$('#all').removeClass('hide');
 			$('#no_drones').addClass('hide');
 		}
+		//Remove all click handlers first
+		$('.gen_row .takeoff').off("click");
+		$('.gen_row .landing').off("click");
+		$('.gen_row .scene1').off("click");
+		$('.gen_row .scene2').off("click");
+		$('.gen_row .scene3').off("click");
 		for(var i in data){
 			$(".my_drones").append(
-			"<div class='row drone_row' id='"+data[i]+"'>"+
+			"<div class='row drone_row gen_row' id='"+data[i]+"'>"+
 				"<div><h2>my super drone <span class='drone_id'>"+data[i]+"</span></h2></div>"+
 				"<div class='takeoff_container'><button class='columns small-3 button takeoff'>takeoff</button></div>"+
 				"<div class='hide landing_container'><button class='columns small-3 button landing'>landing</button></div>"+
@@ -112,7 +121,6 @@
 			"<div class='scene_container'><button class='columns small-3 button scene scene3 disabled'>scene 3</button></div>"+
 			"</div>"
 			);
-			
 			$('body').on('click','#'+data[i]+' .takeoff',takeoff_handler);
 			$('body').on('click','#'+data[i]+' .landing',landing_handler);
 			$('body').on('click','#'+data[i]+' .scene1',scene1_handler);
@@ -160,7 +168,7 @@
 		if(!this.hasClass("disabled")){
 			var id = $(this).parent().parent().attr('id');
 			console.log("scene3 asked for "+id);
-			socket.emit('client_order',{id_drones:[data[i]],cmd:"scene",arg:{nb:2}});
+			socket.emit('client_order',{id_drones:[i],cmd:"scene",arg:{nb:3}});
 		}
 	}
 			

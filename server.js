@@ -20,7 +20,7 @@ server.get(/.*/, restify.serveStatic({
 }));
 
 var tab_clients = [];
-var clients_limit = 4;
+var clients_limit = 5;
 var nb_clients=0;
 
 function connect(socket) {
@@ -33,15 +33,13 @@ function connect(socket) {
 		console.log('client id : '+socket.id);
 		tab_clients.push(socket.id);
 		//socket.emit('command',{id_drones:[],cmd:"takeoff"});
-		socket.emit("drones_ids",tab_clients);
+		socket.broadcast.emit("drones_ids",tab_clients);
+
+		// received an order from the web interface, broadcast it to other clients.
 		socket.on('client_order',function(data){
-				socket.emit('event',data);
-				console.log(data);
-//				for(var i in data.drone)
-//				{
-//					send_command(data.cmd,data.drone[i]);
-//				}
+				socket.broadcast.emit("server_cmd",data);
 			});
+
 		socket.on('message',function(data){
 			socket.emit("event",{"cmd":"coucou"});
 		});
