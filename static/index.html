@@ -57,7 +57,7 @@
 	});
 	
 	$('#all .landing').click(function(){
-		socket.emit('client_order',{id_drones:drones_id,cmd:"landing"});
+		socket.emit('client_order',{id_drones:drones_id,cmd:"land"});
 		console.log("landing asked for all");
 		$('#all .landing_container').addClass('hide');
 		$('#all .takeoff_container').removeClass('hide');
